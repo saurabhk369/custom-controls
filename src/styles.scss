@@ -1,1 +1,18 @@
-/* You can add global styles to this file, and also import other style files */
+@import url('https://fonts.googleapis.com/css?family=Montserrat:400,500,&display=swap');
+:root {
+    --dark-highlight: #203a5b;
+    --highlight: #284b75;
+    --light-highlight: #6c8ba7;
+    --light-grey: #adaeaa;
+    --dark-grey: #232323;
+}
+
+html,
+body {
+    height: 100%;
+    display: flex;
+    align-items: top;
+    margin-top: 10%;
+    justify-content: center;
+    font-family: 'Montserrat', sans-serif;
+}

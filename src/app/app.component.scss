@@ -1,0 +1,125 @@
+:host *::selection {
+    background-color: none;
+}
+
+.calendar-container {
+    display: flex;
+    flex-direction: column;
+    color: var(--dark-grey);
+    font-family: 'Montserrat', sans-serif;
+    box-shadow: 0px 0px 12px 12px #dddddd;
+}
+
+.calendar-header-wrapper {
+    display: flex;
+    color: white;
+    flex-direction: column;
+    background-color: var(--highlight);
+}
+
+.day,
+.month,
+.date,
+.year {
+    width: 100%;
+    text-align: center;
+    background-color: var(--highlight);
+}
+
+.day {
+    padding: 10px 0;
+    font-size: 15px;
+    line-height: 15px;
+    font-weight: 600;
+    background-color: var(--dark-highlight);
+}
+
+.month {
+    font-size: 28px;
+    line-height: 28px;
+    padding-top: 28px;
+    font-weight: 600;
+}
+
+.date {
+    padding: 15px 0;
+    font-size: 60px;
+    line-height: 60px;
+    font-weight: 600;
+}
+
+.year {
+    padding: 5px 0;
+    font-size: 25px;
+    line-height: 25px;
+    font-weight: 500;
+    padding-bottom: 25px;
+    color: var(--light-highlight);
+}
+
+.calendar-controls-wrapper {
+    display: flex;
+    padding: 10px;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 20px;
+    background-color: white;
+    justify-content: space-between;
+}
+
+.btn-control-wrapper {
+    display: flex;
+    align-items: center;
+}
+
+.btn-control {
+    width: 15px;
+    height: 15px;
+    display: block;
+    color: white;
+    font-size: 20px;
+    line-height: 15px;
+    text-align: center;
+    border-radius: 50%;
+    cursor: pointer;
+    background-color: var(--dark-grey);
+}
+
+.previous {
+    transform: rotate(180deg);
+}
+
+.tbl-calendar {
+    padding: 10px;
+    color: var(--dark-grey);
+    background-color: white;
+    border-radius: 5px;
+    .td-calendar {
+        padding: 10px;
+        cursor: pointer;
+        text-align: center;
+        vertical-align: middle;
+        &:hover {
+            color: white;
+            border-radius: 50%;
+            background-color: var(--highlight);
+        }
+    }
+    .td-calendar-selected {
+        color: white;
+        border-radius: 50%;
+        background-color: var(--highlight);
+    }
+    .td-calendar-empty {
+        &:hover {
+            cursor: auto;
+            background-color: transparent;
+        }
+    }
+    .td-calendar-days {
+        cursor: default;
+        text-align: center;
+        vertical-align: middle;
+        color: var(--highlight);
+    }
+}

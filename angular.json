@@ -119,6 +119,41 @@
           }
         }
       }
+    },
+    "custom-datetimepicker": {
+      "projectType": "library",
+      "root": "projects/custom-datetimepicker",
+      "sourceRoot": "projects/custom-datetimepicker/src",
+      "prefix": "cc",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-ng-packagr:build",
+          "options": {
+            "tsConfig": "projects/custom-datetimepicker/tsconfig.lib.json",
+            "project": "projects/custom-datetimepicker/ng-package.json"
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/custom-datetimepicker/src/test.ts",
+            "tsConfig": "projects/custom-datetimepicker/tsconfig.spec.json",
+            "karmaConfig": "projects/custom-datetimepicker/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/custom-datetimepicker/tsconfig.lib.json",
+              "projects/custom-datetimepicker/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
     }},
   "defaultProject": "custom-controls"
 }

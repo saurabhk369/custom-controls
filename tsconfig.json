@@ -17,6 +17,14 @@
     "lib": [
       "es2018",
       "dom"
-    ]
+    ],
+    "paths": {
+      "custom-datetimepicker": [
+        "dist/custom-datetimepicker"
+      ],
+      "custom-datetimepicker/*": [
+        "dist/custom-datetimepicker/*"
+      ]
+    }
   }
 }
