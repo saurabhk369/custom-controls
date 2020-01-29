@@ -1,21 +1,63 @@
 <!-- <cc-custom-datetimepicker [defaultDate]="'abcd'"></cc-custom-datetimepicker> -->
 
 <div class="calendar-container">
-    <div class="calendar-header-wrapper">
-        <div class="day">{{days[selectedDay]}}</div>
-        <div class="month">{{months[selectedMonth].slice(0, 3)}}</div>
-        <div class="date">{{appendZeroToSingleDigit(selectedDate)}}</div>
-        <div class="year">{{selectedYear}}</div>
+  <div class="calendar-header-wrapper">
+    <div class="day">
+      <span>
+        {{days[selectedDay]}}
+      </span>
+      <span class="btn-calendar-close">x</span>
     </div>
-    <div class="calendar-controls-wrapper">
-        <div class="btn-control-wrapper" (click)="previous()">
-            <span class="btn-control previous">&#8227;</span>
-        </div>
-        <span class="selceted-month-year">{{months[currentMonth]}} {{currentYear}}</span>
-        <div class="btn-control-wrapper" (click)="next()">
-            <span class="btn-control">&#8227;</span>
-        </div>
+    <div class="month">{{months[selectedMonth].slice(0, 3)}}</div>
+    <div class="date">{{appendZeroToSingleDigit(selectedDate)}}</div>
+    <div class="year">{{selectedYear}}</div>
+  </div>
+  <div class="calendar-controls-wrapper">
+    <div class="btn-control-wrapper" (click)="previous()">
+      <span class="btn-control previous">&#8227;</span>
     </div>
-    <div #CalendarWrapper></div>
+    <ng-template [ngIf]="view === 'calendar'">
+      <span class="selceted-month-year" (click)="changeView('months')">
+        {{months[currentMonth]}}, {{currentYear}}
+      </span>
+    </ng-template>
+    <ng-template [ngIf]="view === 'months'">
+      <span class="selceted-month-year" (click)="changeView('years')">
+        {{currentYear}}
+      </span>
+    </ng-template>
+    <ng-template [ngIf]="view === 'years'">
+      <span class="selceted-month-year">
+        {{decadeStartYear}} - {{decadeEndYear}}
+      </span>
+    </ng-template>
+    <div class="btn-control-wrapper" (click)="next()">
+      <span class="btn-control">&#8227;</span>
+    </div>
+  </div>
+
+  <div class="calendar-control-main-container">
+    <div class="calendar-wrapper" #CalendarWrapper></div>
+    <div class="calendar-overlay-wrapper" *ngIf="view === 'time'">
+      <h1>Time</h1>
+    </div>
+    <div class="calendar-overlay-wrapper" *ngIf="view === 'months'">
+      <div class="month-selection" *ngFor="let m of months" [ngClass]="{'month-selected': m === months[selectedMonth]}"
+        (click)="selectMonth(m)">
+        {{m.slice(0, 3)}}
+      </div>
+    </div>
+    <div class="calendar-overlay-wrapper" *ngIf="view === 'years'">
+      <div class="year-selection" *ngFor="let y of YearsInDecade" [ngClass]="{'year-selected': y === selectedYear}"
+        (click)="selectYear(y)">
+        {{y}}
+      </div>
+    </div>
+  </div>
+  <div class="calendar-selection-controls-wrapper">
+    <div class="calendar-selection-control"><span (click)="jump('today')">Today</span></div>
+    <div class="calendar-selection-control"><span>Now</span></div>
+    <div class="calendar-selection-control"><span>OK</span></div>
+  </div>
 </div>
 <router-outlet></router-outlet>
