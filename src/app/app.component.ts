@@ -1,5 +1,6 @@
-import { Component, OnInit, ViewChild, ElementRef, Renderer2, AfterViewInit, AfterViewChecked, AfterContentInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, Renderer2 } from '@angular/core';
 import * as moment from 'moment';
+import * as mtz from 'moment-timezone';
 
 @Component({
   selector: 'cc-root',
@@ -11,12 +12,14 @@ export class AppComponent implements OnInit {
 
   @ViewChild('CalendarWrapper', { static: true }) CW: ElementRef<HTMLDivElement>;
 
-  view = 'calendar';
+  view = 'time';
 
   dateValidations = ['year', 'month', 'day', 'hours', 'minutes', 'seconds', 'milliseconds'];
   days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
   months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+  timezones: any[] = [];
 
   currentDay: number;
   currentDate: number;
@@ -26,6 +29,8 @@ export class AppComponent implements OnInit {
   currentMinutes: number;
   currentSeconds: number;
   currentMilliseconds: number;
+  currentMeridiem: string;
+  currentTimeZone: string;
 
   selectedDay: number;
   selectedDate: number;
@@ -35,10 +40,16 @@ export class AppComponent implements OnInit {
   selectedMinutes: number;
   selectedSeconds: number;
   selectedMilliseconds: number;
+  selectedMeridiem: string;
+  selectedTimeZone: string;
+
+  hourFormat24 = true;
 
   decadeStartYear: number;
   decadeEndYear: number;
   YearsInDecade = [];
+  hours = Array.from({ length: 24 }, (v, k) => k++);
+  minutesSeconds = Array.from({ length: 59 }, (v, k) => k++);
 
   // defaultDate = '16-Jan-1994 01:05 AM';
   defaultDate;
@@ -46,9 +57,22 @@ export class AppComponent implements OnInit {
   constructor(private renderer: Renderer2) { }
 
   ngOnInit() {
-    const date = this.defaultDate ? moment(this.defaultDate).format('DD-MMMYYYY') : moment().format('DD-MMM-YYYY');
+    console.log(this.hours, this.minutesSeconds);
+    this.defaultDate = this.defaultDate || new Date();
+    const date = moment(this.defaultDate).format('DD-MMMYYYY HH:mm:ss Z');
+
     if (date) {
       if (this.isValidDate(date)) {
+        mtz.tz.names().map((t: string) => {
+          this.timezones.push({
+            offset: mtz(date).tz(t).format('Z'),
+            offsetMinutes: this.convertTimeOffsetHoursToMinutes(mtz(date).tz(t).format('Z')),
+            name: mtz(date).tz(t).format('zz'),
+            location: t
+          });
+        });
+        this.timezones.sort(this.compareValues('offsetMinutes', 'desc'));
+
         // console.log(date);
         this.currentDay = parseInt(moment(date).format('d'), 10);
         // console.log(this.days[this.currentDay]);
@@ -59,6 +83,8 @@ export class AppComponent implements OnInit {
         this.currentMinutes = parseInt(moment(date).format('mm'), 10);
         this.currentSeconds = parseInt(moment(date).format('ss'), 10);
         this.currentMilliseconds = parseInt(moment(date).format('SSS'), 10);
+        this.currentMeridiem = moment(date).format('A');
+        this.currentTimeZone = this.convertTimeOffsetHoursToMinutes(moment(date).utcOffset() + '');
 
         this.selectedDay = this.currentDay;
         this.selectedDate = this.currentDate;
@@ -68,6 +94,8 @@ export class AppComponent implements OnInit {
         this.selectedMinutes = this.currentMinutes;
         this.selectedSeconds = this.currentSeconds;
         this.selectedMilliseconds = this.currentMilliseconds;
+        this.selectedMeridiem = this.currentMeridiem;
+        this.selectedTimeZone = this.currentTimeZone;
         // console.log(this.selectedDate, this.selectedDay, this.selectedMonth, this.selectedYear);
       }
     }
@@ -194,6 +222,8 @@ export class AppComponent implements OnInit {
 
   jump(key: string) {
     const date = moment().format('DD-MMM-YYYY');
+    const time = moment().format('YYYY-MM-DDTHH:mm:ss');
+    console.log(date, time);
     switch (key) {
       case 'today':
         this.currentDay = parseInt(moment(date).format('d'), 10);
@@ -210,7 +240,25 @@ export class AppComponent implements OnInit {
 
         this.showCalendar(this.currentYear, this.currentMonth, this.currentDate, this.currentHours, this.currentMinutes, this.currentSeconds, this.currentMilliseconds);
         break;
+      case 'now':
+        if (this.hourFormat24) {
+          this.currentHours = moment(time).get('hours');
+        } else {
+          this.currentHours = parseInt(moment(time).format('h'), 10);
+        }
+        this.currentMinutes = moment(time).get('minutes');
+        this.currentSeconds = moment(time).get('seconds');
+        this.currentMeridiem = moment(time).format('A');
 
+        console.log(this.currentHours, this.currentMinutes, this.currentSeconds, moment(time).format('A'));
+
+        this.selectedHours = this.currentHours;
+        this.selectedMinutes = this.currentMinutes;
+        this.selectedSeconds = this.currentSeconds;
+        this.selectedMeridiem = this.currentMeridiem;
+
+        this.view = 'time';
+        break;
       default:
         break;
     }
@@ -227,6 +275,32 @@ export class AppComponent implements OnInit {
     }
   }
 
+  changeHourFormat(format: boolean) {
+    this.hourFormat24 = format;
+    const time = this.selectedDate + '-' + this.months[this.selectedMonth] + '-' + this.selectedYear + ' ' + this.selectedHours + ':' + this.selectedMinutes + ':' + this.selectedSeconds;
+
+    this.currentMinutes = moment(time).get('minutes');
+    this.currentSeconds = moment(time).get('seconds');
+    // this.currentMeridiem = moment(time).format('A');
+    console.log(this.currentMeridiem);
+    if (this.hourFormat24) {
+      if (this.currentMeridiem === 'AM') {
+        this.currentHours = moment(time).get('hours');
+      } else {
+        this.currentHours = moment(time).get('hours') < 12 ? moment(time).get('hours') + 12 : moment(time).get('hours');
+      }
+    } else {
+      this.currentHours = parseInt(moment(time).format('h'), 10);
+    }
+
+    this.selectedHours = this.currentHours;
+    this.selectedMinutes = this.currentMinutes;
+    this.selectedSeconds = this.currentSeconds;
+    this.selectedMeridiem = this.currentMeridiem;
+
+    this.view = 'time';
+  }
+
   calculateDecadeYears() {
     const start = new Date(this.round(this.currentYear, 10), 0, 1);
     const end = new Date(this.round(this.currentYear, 10) + 10, 0, 0);
@@ -237,6 +311,35 @@ export class AppComponent implements OnInit {
 
   round(num: number, to: number) {
     return num - num % to;
+  }
+
+  convertTimeOffsetHoursToMinutes(offset: string): string {
+    if (!(offset.startsWith('+') || offset.startsWith('-'))) {
+      offset = '+' + offset;
+    }
+    const offsetSide = offset.slice(0, 1);
+    const time = offset.slice(1, offset.length);
+    let timeParts = [];
+    if (time.includes(':')) {
+      timeParts = time.split(':');
+      offset = (parseInt(timeParts[0], 10) * 60 + parseInt(timeParts[1], 10)) + '';
+    } else {
+      timeParts.push(this.round(parseInt(time, 10), 100) + ''); timeParts.push(time.slice(time.length - 2, time.length));
+      offset = (parseInt(timeParts[0], 10) + parseInt(timeParts[1], 10)) + '';
+    }
+    switch (offset.length) {
+      case 1:
+        offset = '000' + offset;
+        break;
+      case 2:
+        offset = '00' + offset;
+        break;
+      case 3:
+        offset = '0' + offset;
+        break;
+    }
+    offset = offsetSide + offset;
+    return offset;
   }
 
   selectDate(date: number) {
@@ -297,5 +400,39 @@ export class AppComponent implements OnInit {
       console.error(ex);
       return false;
     }
+  }
+
+  compareValues(key: string, order = 'asc') {
+    return function innerSort(a: any, b: any) {
+      if (!a.hasOwnProperty(key) || !b.hasOwnProperty(key)) {
+        // property does not exist on either object
+        return 0;
+      }
+
+      const varA = (typeof a[key] === 'string')
+        ? a[key].toUpperCase() : a[key];
+      const varB = (typeof b[key] === 'string')
+        ? b[key].toUpperCase() : b[key];
+
+      let comparison = 0;
+      if (varA > varB) {
+        comparison = 1;
+      } else if (varA < varB) {
+        comparison = -1;
+      }
+      return (
+        (order === 'desc') ? (comparison * -1) : comparison
+      );
+    };
+  }
+
+  rollLeft(id) {
+    const el = document.getElementById(id);
+    el.insertBefore(el.lastChild, el.firstChild);
+  }
+
+  rollRight(id) {
+    const el = document.getElementById(id);
+    el.appendChild(el.firstChild);
   }
 }

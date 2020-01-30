@@ -8,7 +8,7 @@
   flex-direction: column;
   color: var(--dark-grey);
   font-family: 'Montserrat', sans-serif;
-  box-shadow: 0px 0px 12px 12px #dddddd;
+  box-shadow: 0px 0px 12px 12px #dddddd,
 }
 
 .calendar-header-wrapper {
@@ -21,17 +21,22 @@
 .day,
 .month,
 .date,
-.year {
+.year,
+.time {
   width: 100%;
+  font-weight: 600;
   text-align: center;
   background-color: var(--highlight);
+
+  >span {
+    cursor: pointer;
+  }
 }
 
 .day {
   padding: 10px 0;
   font-size: 15px;
   line-height: 15px;
-  font-weight: 600;
   position: relative;
   background-color: var(--dark-highlight);
 }
@@ -40,14 +45,12 @@
   font-size: 28px;
   line-height: 28px;
   padding-top: 28px;
-  font-weight: 600;
 }
 
 .date {
   padding: 15px 0;
   font-size: 60px;
   line-height: 60px;
-  font-weight: 600;
 }
 
 .year {
@@ -55,8 +58,23 @@
   font-size: 25px;
   line-height: 25px;
   font-weight: 500;
-  padding-bottom: 25px;
+  //   padding-bottom: 25px;
+  //   color: var(--light-highlight);
+}
+
+.time {
+  font-size: 25px;
+  line-height: 25px;
+  font-weight: 100;
+  padding: 20px 0;
   color: var(--light-highlight);
+}
+
+.calendar-meridiem {
+  font-size: 15px;
+  padding: 0;
+  margin: 0;
+  line-height: 15px;
 }
 
 .btn-calendar-close {
@@ -68,6 +86,7 @@
 
 .selceted-month-year {
   cursor: pointer;
+  margin: 0 auto;
 }
 
 .calendar-controls-wrapper {
@@ -209,3 +228,123 @@
     }
   }
 }
+
+.time-main-container {
+  width: 100%;
+  padding: 10px;
+  padding-top: 0;
+
+  >.hour-format-tabs-wrapper {
+    width: 100%;
+    display: flex;
+    cursor: pointer;
+    text-align: center;
+    justify-content: space-evenly;
+
+    >.hour-format-tab {
+      width: 100%;
+      padding: 5px 0;
+      border: 1px solid var(--highlight);
+
+      &:hover {
+        color: white;
+        background: var(--light-highlight);
+      }
+    }
+
+    >.hour-format-tab-selected {
+      color: white;
+      background: var(--highlight);
+    }
+  }
+
+  >.time-container {
+    width: 100%;
+    height: calc(100% - 30px);
+    display: flex;
+    flex-direction: column;
+
+    >.time-controls-wrapper {
+      height: 100%;
+      padding: 10px;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+
+      >.time-hours-rotator-wrapper,
+      .time-minutes-rotator-wrapper,
+      .time-seconds-rotator-wrapper {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+
+        >.btn-time-rotator {
+          cursor: pointer;
+        }
+
+        >.time-controls-stage {
+
+          >.time-controls-rotator {
+
+            >.time-control {
+              width: 30px;
+              padding: 10px;
+              margin: 5px 0;
+              text-align: center;
+              border: 1px solid var(--light-highlight);
+              background: var(--light-highlight);
+
+              &:nth-child(n+4) {
+                display: none;
+              }
+            }
+          }
+        }
+      }
+
+      >.time-mediem-wrapper {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-evenly;
+        align-items: center;
+
+        >.time-mediem {
+          width: 50px;
+          height: 50px;
+          background: var(--dark-highlight);
+          color: white;
+          text-align: center;
+          line-height: 50px
+        }
+      }
+    }
+  }
+}
+
+select {
+  background: white;
+  padding: 5px;
+  border: 1px solid var(--light-highlight);
+
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  -o-appearance: none;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//  Rotator
