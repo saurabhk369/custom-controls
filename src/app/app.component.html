@@ -1,148 +1,153 @@
 <!-- <cc-custom-datetimepicker [defaultDate]="'abcd'"></cc-custom-datetimepicker> -->
 
 <div class="calendar-container">
-  <div class="calendar-header-wrapper">
-    <div class="day">
-      <span>
+    <div class="calendar-header-wrapper">
+        <div class="day">
+            <span>
         {{days[selectedDay]}}
       </span>
-      <span class="btn-calendar-close">x</span>
-    </div>
-    <div class="month">
-      <span (click)="changeView('calendar')">
+            <span class="btn-calendar-close">x</span>
+        </div>
+        <div class="month">
+            <span (click)="changeView('calendar')">
         {{months[selectedMonth].slice(0, 3)}}
       </span>
-    </div>
-    <div class="date">
-      <span (click)="changeView('calendar')">
+        </div>
+        <div class="date">
+            <span (click)="changeView('calendar')">
         {{appendZeroToSingleDigit(selectedDate)}}
       </span>
-    </div>
-    <div class="year">
-      <span (click)="changeView('calendar')">
+        </div>
+        <div class="year">
+            <span (click)="changeView('calendar')">
         {{selectedYear}}
       </span>
-    </div>
-    <div class="time">
-      <span (click)="changeView('time')">
+        </div>
+        <div class="time">
+            <span (click)="changeView('time')">
         {{appendZeroToSingleDigit(selectedHours)}}:{{appendZeroToSingleDigit(selectedMinutes)}}:{{appendZeroToSingleDigit(selectedSeconds)}}
         <span class="calendar-meridiem" *ngIf="hourFormat24 === false">
           {{selectedMeridiem}}
         </span>
-      </span>
+            </span>
+        </div>
     </div>
-  </div>
-  <div class="calendar-controls-wrapper">
-    <div class="btn-control-wrapper" (click)="previous()" *ngIf="view !== 'time'">
-      <span class="btn-control previous">&#8227;</span>
-    </div>
-    <ng-template [ngIf]="view === 'calendar'">
-      <span class="selceted-month-year" (click)="changeView('months')">
+    <div class="calendar-controls-wrapper">
+        <div class="btn-control-wrapper" (click)="previous()" *ngIf="view !== 'time'">
+            <span class="btn-control previous">&#8227;</span>
+        </div>
+        <ng-template [ngIf]="view === 'calendar'">
+            <span class="selceted-month-year" (click)="changeView('months')">
         {{months[currentMonth]}}, {{currentYear}}
       </span>
-    </ng-template>
-    <ng-template [ngIf]="view === 'months'">
-      <span class="selceted-month-year" (click)="changeView('years')">
+        </ng-template>
+        <ng-template [ngIf]="view === 'months'">
+            <span class="selceted-month-year" (click)="changeView('years')">
         {{currentYear}}
       </span>
-    </ng-template>
-    <ng-template [ngIf]="view === 'years'">
-      <span class="selceted-month-year">
+        </ng-template>
+        <ng-template [ngIf]="view === 'years'">
+            <span class="selceted-month-year">
         {{decadeStartYear}} - {{decadeEndYear}}
       </span>
-    </ng-template>
-    <ng-template [ngIf]="view === 'time'">
-      <span class="selceted-month-year" (click)="changeView('calendar')">
+        </ng-template>
+        <ng-template [ngIf]="view === 'time'">
+            <span class="selceted-month-year" (click)="changeView('calendar')">
         Back
       </span>
-    </ng-template>
-    <div class="btn-control-wrapper" (click)="next()" *ngIf="view !== 'time'">
-      <span class="btn-control">&#8227;</span>
-    </div>
-  </div>
-
-  <div class="calendar-control-main-container">
-    <div class="calendar-wrapper" #CalendarWrapper></div>
-    <div class="calendar-overlay-wrapper" *ngIf="view === 'time'">
-      <div class="time-main-container">
-        <div class="hour-format-tabs-wrapper">
-          <span class="hour-format-tab" [ngClass]="{'hour-format-tab-selected': hourFormat24 === false}"
-            (click)="changeHourFormat(false)">12 Hours</span>
-          <span class="hour-format-tab" [ngClass]="{'hour-format-tab-selected': hourFormat24 === true}"
-            (click)="changeHourFormat(true)">24 Hours</span>
+        </ng-template>
+        <div class="btn-control-wrapper" (click)="next()" *ngIf="view !== 'time'">
+            <span class="btn-control">&#8227;</span>
         </div>
-        <div class="time-container">
-          <div class="time-controls-wrapper">
+    </div>
 
-            <div class="time-hours-rotator-wrapper">
-              <span class="btn-time-rotator" (click)="rollLeft('hours-rotator')">←</span>
-              <div class="time-controls-stage">
-                <div class="time-controls-rotator" id="hours-rotator">
-                  <div class="time-control time-control-hours" *ngFor="let h of hours">{{h}}</div>
+    <div class="calendar-control-main-container">
+        <div class="calendar-wrapper" #CalendarWrapper></div>
+        <div class="calendar-overlay-wrapper" *ngIf="view === 'time'">
+            <div class="time-main-container">
+                <div class="hour-format-tabs-wrapper">
+                    <span class="hour-format-tab" [ngClass]="{'hour-format-tab-selected': hourFormat24 === false}" (click)="changeHourFormat(false);">12 Hours</span>
+                    <span class="hour-format-tab" [ngClass]="{'hour-format-tab-selected': hourFormat24 === true}" (click)="changeHourFormat(true);">24 Hours</span>
                 </div>
-              </div>
-              <span class="btn-time-rotator" (click)="rollRight('hours-rotator')">→</span>
-            </div>
+                <div class="time-container">
+                    <div class="time-controls-wrapper">
 
-            <div class="time-minutes-rotator-wrapper">
-              <span class="btn-time-rotator" (click)="rollLeft('minutes-rotator')">←</span>
-              <div class="time-controls-stage">
-                <div class="time-controls-rotator" id="minutes-rotator">
-                  <div class="time-control time-control-minutes" *ngFor="let m of minutesSeconds">{{m}}</div>
-                </div>
-              </div>
-              <span class="btn-time-rotator" (click)="rollRight('minutes-rotator')">→</span>
-            </div>
+                        <div class="time-hours-rotator-wrapper" (wheel)="timeScroll($event, 'hours-rotator')">
+                            <span class="time-rotator-title">Hours</span>
+                            <span class="btn-time-rotator" (click)="rollTop('hours-rotator')">⏶</span>
+                            <div class="time-controls-stage">
+                                <div class="time-controls-rotator" id="hours-rotator">
+                                    <div class="time-control time-control-hours" *ngFor="let h of hours" (click)="changeTime(h, 'h')">
+                                        {{appendZeroToSingleDigit(h)}}
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="btn-time-rotator" (click)="rollBottom('hours-rotator')">⏷</span>
+                        </div>
+                        <span class="time-separator">:</span>
+                        <div class="time-minutes-rotator-wrapper" (wheel)="timeScroll($event, 'minutes-rotator')">
+                            <span class="time-rotator-title">Minutes</span>
+                            <span class="btn-time-rotator" (click)="rollTop('minutes-rotator')">⏶</span>
+                            <div class="time-controls-stage">
+                                <div class="time-controls-rotator" id="minutes-rotator">
+                                    <div class="time-control time-control-minutes" *ngFor="let m of minutesSeconds" (click)="changeTime(m, 'm')">
+                                        {{appendZeroToSingleDigit(m)}}
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="btn-time-rotator" (click)="rollBottom('minutes-rotator')">⏷</span>
+                        </div>
+                        <span class="time-separator">:</span>
+                        <div class="time-seconds-rotator-wrapper" (wheel)="timeScroll($event, 'seconds-rotator')">
+                            <span class="time-rotator-title">Seconds</span>
+                            <span class="btn-time-rotator" (click)="rollTop('seconds-rotator')">⏶</span>
+                            <div class="time-controls-stage">
+                                <div class="time-controls-rotator" id="seconds-rotator">
+                                    <div class="time-control time-control-seconds" *ngFor="let s of minutesSeconds" (click)="changeTime(s, 's')">
+                                        {{appendZeroToSingleDigit(s)}}
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="btn-time-rotator" (click)="rollBottom('seconds-rotator')">⏷</span>
+                        </div>
 
-            <div class="time-seconds-rotator-wrapper">
-              <span class="btn-time-rotator" (click)="rollLeft('seconds-rotator')">←</span>
-              <div class="time-controls-stage">
-                <div class="time-controls-rotator" id="seconds-rotator">
-                  <div class="time-control time-control-seconds" *ngFor="let s of minutesSeconds">{{s}}</div>
-                </div>
-              </div>
-              <span class="btn-time-rotator" (click)="rollRight('seconds-rotator')">→</span>
-            </div>
+                        <div class="time-meridiem-wrapper" *ngIf="!hourFormat24">
+                            <div class="time-meridiem" [ngClass]="{'time-meridiem-active': selectedMeridiem === 'AM'}" (click)="changeMeridiem('AM')">AM</div>
+                            <div class="time-meridiem" [ngClass]="{'time-meridiem-active': selectedMeridiem === 'PM'}" (click)="changeMeridiem('PM')">PM</div>
+                        </div>
 
-            <div class="time-mediem-wrapper" *ngIf="!hourFormat24">
-              <div class="time-mediem">AM</div>
-              <div class="time-mediem">PM</div>
-            </div>
-
-          </div>
-          <select name="timezones" id="timezones" class="calendar-ddl timezones" [(ngModel)]="selectedTimeZone">
+                    </div>
+                    <select name="timezones" id="timezones" class="calendar-ddl timezones" [(ngModel)]="selectedTimeZone">
             <option *ngFor="let tz of timezones" [value]="tz.offsetMinutes"
               [selected]="tz.offsetMinutes === selectedTimeZone">
               ({{tz.offset}}) {{tz.name}} {{tz.location}}
             </option>
           </select>
+                </div>
+            </div>
         </div>
-      </div>
+        <div class="calendar-overlay-wrapper" *ngIf="view === 'months'">
+            <div class="month-selection" *ngFor="let m of months" [ngClass]="{'month-selected': m === months[selectedMonth]}" (click)="selectMonth(m)">
+                {{m.slice(0, 3)}}
+            </div>
+        </div>
+        <div class="calendar-overlay-wrapper" *ngIf="view === 'years'">
+            <div class="year-selection" *ngFor="let y of YearsInDecade" [ngClass]="{'year-selected': y === selectedYear}" (click)="selectYear(y)">
+                {{y}}
+            </div>
+        </div>
     </div>
-    <div class="calendar-overlay-wrapper" *ngIf="view === 'months'">
-      <div class="month-selection" *ngFor="let m of months" [ngClass]="{'month-selected': m === months[selectedMonth]}"
-        (click)="selectMonth(m)">
-        {{m.slice(0, 3)}}
-      </div>
-    </div>
-    <div class="calendar-overlay-wrapper" *ngIf="view === 'years'">
-      <div class="year-selection" *ngFor="let y of YearsInDecade" [ngClass]="{'year-selected': y === selectedYear}"
-        (click)="selectYear(y)">
-        {{y}}
-      </div>
-    </div>
-  </div>
 
-  <div class="calendar-selection-controls-wrapper">
-    <div class="calendar-selection-control">
-      <span (click)="jump('today')">Today</span>
+    <div class="calendar-selection-controls-wrapper">
+        <div class="calendar-selection-control">
+            <span (click)="jump('today')">Today</span>
+        </div>
+        <div class="calendar-selection-control">
+            <span (click)="jump('now')">Now</span>
+        </div>
+        <div class="calendar-selection-control">
+            <span>OK</span>
+        </div>
     </div>
-    <div class="calendar-selection-control">
-      <span (click)="jump('now')">Now</span>
-    </div>
-    <div class="calendar-selection-control">
-      <span>OK</span>
-    </div>
-  </div>
 </div>
 <router-outlet></router-outlet>

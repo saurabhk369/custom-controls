@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, Renderer2 } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, Renderer2, AfterViewInit } from '@angular/core';
 import * as moment from 'moment';
 import * as mtz from 'moment-timezone';
 
@@ -54,7 +54,7 @@ export class AppComponent implements OnInit {
   // defaultDate = '16-Jan-1994 01:05 AM';
   defaultDate;
 
-  constructor(private renderer: Renderer2) { }
+  constructor(private renderer: Renderer2, private elem: ElementRef) { }
 
   ngOnInit() {
     console.log(this.hours, this.minutesSeconds);
@@ -284,21 +284,36 @@ export class AppComponent implements OnInit {
     // this.currentMeridiem = moment(time).format('A');
     console.log(this.currentMeridiem);
     if (this.hourFormat24) {
+      // this.hours = Array.from({ length: 24 }, (v, k) => k++);
       if (this.currentMeridiem === 'AM') {
         this.currentHours = moment(time).get('hours');
       } else {
         this.currentHours = moment(time).get('hours') < 12 ? moment(time).get('hours') + 12 : moment(time).get('hours');
       }
     } else {
+      // this.hours = Array.from({ length: 12 }, (v, k) => k++);
       this.currentHours = parseInt(moment(time).format('h'), 10);
     }
 
-    this.selectedHours = this.currentHours;
-    this.selectedMinutes = this.currentMinutes;
-    this.selectedSeconds = this.currentSeconds;
+    // this.selectedHours = this.currentHours;
+    // this.selectedMinutes = this.currentMinutes;
+    // this.selectedSeconds = this.currentSeconds;
     this.selectedMeridiem = this.currentMeridiem;
 
     this.view = 'time';
+  }
+
+  changeTimeOnView() {
+    console.log(this.currentHours, this.currentMinutes, this.currentSeconds);
+    this.changeTime(this.currentHours, 'h');
+    this.changeTime(this.currentMinutes, 'm');
+    this.changeTime(this.currentSeconds, 's');
+  }
+
+  checkHourBlockVisiblity(hour: number): string {
+    if (!this.hourFormat24 && hour > 12) {
+      return 'none';
+    }
   }
 
   calculateDecadeYears() {
@@ -426,13 +441,125 @@ export class AppComponent implements OnInit {
     };
   }
 
-  rollLeft(id) {
-    const el = document.getElementById(id);
-    el.insertBefore(el.lastChild, el.firstChild);
+  changeTime(value: number, unitOfTIme: string) {
+    switch (unitOfTIme) {
+      case 'h':
+        if (value < this.selectedHours) {
+          while (this.selectedHours !== value) {
+            console.log(this.selectedHours, value);
+            this.rollTop('hours-rotator');
+          }
+        } else {
+          while (this.selectedHours !== value) {
+            console.log(this.selectedHours, value);
+            this.rollBottom('hours-rotator');
+          }
+        }
+        break;
+      case 'm':
+        if (value < this.selectedMinutes) {
+          while (this.selectedMinutes !== value) {
+            console.log(this.selectedMinutes, value);
+            this.rollTop('minutes-rotator');
+          }
+        } else {
+          while (this.selectedMinutes !== value) {
+            console.log(this.selectedMinutes, value);
+            this.rollBottom('minutes-rotator');
+          }
+        }
+        break;
+      case 's':
+        if (value < this.selectedSeconds) {
+          while (this.selectedSeconds !== value) {
+            console.log(this.selectedSeconds, value);
+            this.rollTop('seconds-rotator');
+          }
+        } else {
+          while (this.selectedSeconds !== value) {
+            console.log(this.selectedSeconds, value);
+            this.rollBottom('seconds-rotator');
+          }
+        }
+        break;
+    }
   }
 
-  rollRight(id) {
-    const el = document.getElementById(id);
+  changeMeridiem(meridiem: string) {
+    this.currentMeridiem = meridiem;
+    this.selectedMeridiem = meridiem;
+  }
+
+  rollTop(id: string) {
+    const el = this.elem.nativeElement.querySelector('#' + id) as HTMLDivElement;
+    el.insertBefore(el.lastChild, el.firstChild);
+    let nodeValue = (el.childNodes[1] as HTMLDivElement).innerText;
+    // console.log(nodeValue);
+    if (!nodeValue) {
+      nodeValue = '00';
+    }
+    switch (id) {
+      case 'hours-rotator':
+        this.currentHours = parseInt(nodeValue, 10);
+        this.selectedHours = this.currentHours;
+        break;
+      case 'minutes-rotator':
+        this.currentMinutes = parseInt(nodeValue, 10);
+        this.selectedMinutes = this.currentMinutes;
+        break;
+      case 'seconds-rotator':
+        this.currentSeconds = parseInt(nodeValue, 10);
+        this.selectedSeconds = this.currentSeconds;
+        break;
+    }
+    if ((el.childNodes[1] as HTMLDivElement).innerText === '00') {
+      this.rollTop(id);
+    }
+    // if (!this.hourFormat24 && parseInt(nodeValue, 10) > 11) {
+    //   while (nodeValue === '00') {
+    //     this.rollTop(id);
+    //   }
+    // }
+  }
+
+  rollBottom(id: string) {
+    const el = this.elem.nativeElement.querySelector('#' + id) as HTMLDivElement;
     el.appendChild(el.firstChild);
+    let nodeValue = (el.childNodes[1] as HTMLDivElement).innerText;
+    // console.log(nodeValue);
+    if (!nodeValue) {
+      nodeValue = '00';
+    }
+    switch (id) {
+      case 'hours-rotator':
+        this.currentHours = parseInt(nodeValue, 10);
+        this.selectedHours = this.currentHours;
+        break;
+      case 'minutes-rotator':
+        this.currentMinutes = parseInt(nodeValue, 10);
+        this.selectedMinutes = this.currentMinutes;
+        break;
+      case 'seconds-rotator':
+        this.currentSeconds = parseInt(nodeValue, 10);
+        this.selectedSeconds = this.currentSeconds;
+        break;
+    }
+
+    if ((el.childNodes[1] as HTMLDivElement).innerText === '00') {
+      this.rollBottom(id);
+    }
+    // if (!this.hourFormat24 && parseInt(nodeValue, 10) > 11) {
+    //   while (nodeValue === '00') {
+    //     this.rollBottom(id);
+    //   }
+    // }
+  }
+
+  timeScroll(evt: WheelEvent, containerId: string) {
+    if (evt.deltaY < 0) {
+      this.rollTop(containerId);
+    } else {
+      this.rollBottom(containerId);
+    }
   }
 }
