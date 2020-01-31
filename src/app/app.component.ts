@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, Renderer2, AfterViewInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, Renderer2, AfterViewInit, AfterContentChecked } from '@angular/core';
 import * as moment from 'moment';
 import * as mtz from 'moment-timezone';
 
@@ -7,12 +7,12 @@ import * as mtz from 'moment-timezone';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, AfterContentChecked {
   title = 'custom-controls';
 
   @ViewChild('CalendarWrapper', { static: true }) CW: ElementRef<HTMLDivElement>;
 
-  view = 'time';
+  view = 'calendar';
 
   dateValidations = ['year', 'month', 'day', 'hours', 'minutes', 'seconds', 'milliseconds'];
   days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
@@ -44,10 +44,12 @@ export class AppComponent implements OnInit {
   selectedTimeZone: string;
 
   hourFormat24 = true;
+  updatedTimeOnView = true;
 
   decadeStartYear: number;
   decadeEndYear: number;
   YearsInDecade = [];
+  hours12 = Array.from({ length: 12 }, (v, k) => k++);
   hours = Array.from({ length: 24 }, (v, k) => k++);
   minutesSeconds = Array.from({ length: 59 }, (v, k) => k++);
 
@@ -109,6 +111,13 @@ export class AppComponent implements OnInit {
       parseInt(moment(date).format('ss'), 10),
       parseInt(moment(date).format('SSS'), 10)
     );
+  }
+
+  ngAfterContentChecked() {
+    if (!this.updatedTimeOnView) {
+      this.changeTimeOnView();
+      this.updatedTimeOnView = true;
+    }
   }
 
   showCalendar(year?: number, month?: number, date?: number, hours?: number, minutes?: number, seconds?: number, milliseconds?: number) {
@@ -223,7 +232,7 @@ export class AppComponent implements OnInit {
   jump(key: string) {
     const date = moment().format('DD-MMM-YYYY');
     const time = moment().format('YYYY-MM-DDTHH:mm:ss');
-    console.log(date, time);
+    // console.log(date, time);
     switch (key) {
       case 'today':
         this.currentDay = parseInt(moment(date).format('d'), 10);
@@ -252,9 +261,14 @@ export class AppComponent implements OnInit {
 
         console.log(this.currentHours, this.currentMinutes, this.currentSeconds, moment(time).format('A'));
 
-        this.selectedHours = this.currentHours;
-        this.selectedMinutes = this.currentMinutes;
-        this.selectedSeconds = this.currentSeconds;
+        this.updatedTimeOnView = false;
+
+        // this.changeTime(this.currentMonth, 'm');
+        // this.changeTime(this.currentSeconds, 's');
+
+        // this.selectedHours = this.currentHours;
+        // this.selectedMinutes = this.currentMinutes;
+        // this.selectedSeconds = this.currentSeconds;
         this.selectedMeridiem = this.currentMeridiem;
 
         this.view = 'time';
@@ -273,12 +287,69 @@ export class AppComponent implements OnInit {
       this.currentDay = ((new Date(this.currentYear, this.currentMonth, this.currentDate)).getDay() + 6) % 7;
       this.selectedDay = this.currentDay;
     }
+    if (view === 'time') {
+      this.currentHours = 1;
+      this.currentMinutes = 1;
+      this.currentSeconds = 1;
+
+
+      console.log(this.selectedHours, this.selectedMinutes, this.selectedSeconds);
+
+      if (this.currentHours < this.selectedHours) {
+        while (this.selectedHours !== this.currentHours) {
+          if (this.hourFormat24) {
+            console.log(this.selectedHours, this.currentHours);
+            this.rollTop('hours-rotator', false);
+          } else {
+            this.rollTop('hours12-rotator', false);
+          }
+        }
+      } else {
+        while (this.selectedHours !== this.currentHours) {
+          if (this.hourFormat24) {
+            console.log(this.selectedHours, this.currentHours);
+            this.rollBottom('hours-rotator', false);
+          } else {
+            this.rollBottom('hours12-rotator', false);
+          }
+        }
+      }
+
+      if (this.currentMinutes < this.selectedMinutes) {
+        while (this.selectedMinutes !== this.currentMinutes) {
+          // console.log(this.selectedMinutes, this.currentMinutes);
+          this.rollTop('minutes-rotator', false);
+        }
+      } else {
+        while (this.selectedMinutes !== this.currentMinutes) {
+          // console.log(this.selectedMinutes, this.currentMinutes);
+          this.rollBottom('minutes-rotator', false);
+        }
+      }
+
+      if (this.currentSeconds < this.selectedSeconds) {
+        while (this.selectedSeconds !== this.currentSeconds) {
+          // console.log(this.selectedSeconds, this.currentSeconds);
+          this.rollTop('seconds-rotator', false);
+        }
+      } else {
+        while (this.selectedSeconds !== this.currentSeconds) {
+          // console.log(this.selectedSeconds,  this.currentSeconds);
+          this.rollBottom('seconds-rotator', false);
+        }
+      }
+
+      // console.log(this.selectedHours, this.selectedMinutes, this.selectedSeconds);
+      this.updatedTimeOnView = false;
+    }
   }
 
   changeHourFormat(format: boolean) {
     this.hourFormat24 = format;
-    const time = this.selectedDate + '-' + this.months[this.selectedMonth] + '-' + this.selectedYear + ' ' + this.selectedHours + ':' + this.selectedMinutes + ':' + this.selectedSeconds;
-
+    const time = this.selectedDate + '-' + this.months[this.selectedMonth] + '-' + this.selectedYear + ' ' +
+      (this.selectedMeridiem === 'AM' ? this.selectedHours : (this.selectedHours < 12 ? (this.selectedHours + 12) : this.selectedHours))
+      + ':' + this.selectedMinutes + ':' + this.selectedSeconds;
+    console.log(time, moment(time));
     this.currentMinutes = moment(time).get('minutes');
     this.currentSeconds = moment(time).get('seconds');
     // this.currentMeridiem = moment(time).format('A');
@@ -293,7 +364,39 @@ export class AppComponent implements OnInit {
     } else {
       // this.hours = Array.from({ length: 12 }, (v, k) => k++);
       this.currentHours = parseInt(moment(time).format('h'), 10);
+      this.selectedHours = this.currentHours;
+      console.log(this.currentHours, moment(time).get('hours'));
+      if (moment(time).get('hours') < 12) {
+        this.currentMeridiem = 'AM';
+        this.selectedMeridiem = 'AM';
+      } else {
+        this.currentMeridiem = 'PM';
+        this.selectedMeridiem = 'PM';
+      }
+
+      this.currentHours = 1;
+      if (this.currentHours < this.selectedHours) {
+        while (this.selectedHours !== this.currentHours) {
+          console.log(this.selectedHours, this.currentHours);
+          if (this.hourFormat24) {
+            this.rollTop('hours-rotator', false);
+          } else {
+            this.rollTop('hours12-rotator', false);
+          }
+        }
+      } else {
+        while (this.selectedHours !== this.currentHours) {
+          console.log(this.selectedHours, this.currentHours);
+          if (this.hourFormat24) {
+            this.rollBottom('hours-rotator', false);
+          } else {
+            this.rollBottom('hours12-rotator', false);
+          }
+        }
+      }
     }
+
+    // this.updatedTimeOnView = false;
 
     // this.selectedHours = this.currentHours;
     // this.selectedMinutes = this.currentMinutes;
@@ -304,7 +407,7 @@ export class AppComponent implements OnInit {
   }
 
   changeTimeOnView() {
-    console.log(this.currentHours, this.currentMinutes, this.currentSeconds);
+    // console.log(this.currentHours, this.currentMinutes, this.currentSeconds);
     this.changeTime(this.currentHours, 'h');
     this.changeTime(this.currentMinutes, 'm');
     this.changeTime(this.currentSeconds, 's');
@@ -442,29 +545,38 @@ export class AppComponent implements OnInit {
   }
 
   changeTime(value: number, unitOfTIme: string) {
+    // console.log(value, unitOfTIme);
     switch (unitOfTIme) {
       case 'h':
         if (value < this.selectedHours) {
           while (this.selectedHours !== value) {
-            console.log(this.selectedHours, value);
-            this.rollTop('hours-rotator');
+            // console.log(this.selectedHours, value);
+            if (!this.hourFormat24) {
+              this.rollTop('hours12-rotator');
+            } else {
+              this.rollTop('hours-rotator');
+            }
           }
         } else {
           while (this.selectedHours !== value) {
-            console.log(this.selectedHours, value);
-            this.rollBottom('hours-rotator');
+            // console.log(this.selectedHours, value);
+            if (!this.hourFormat24) {
+              this.rollBottom('hours12-rotator');
+            } else {
+              this.rollBottom('hours-rotator');
+            }
           }
         }
         break;
       case 'm':
         if (value < this.selectedMinutes) {
           while (this.selectedMinutes !== value) {
-            console.log(this.selectedMinutes, value);
+            // console.log(this.selectedMinutes, value);
             this.rollTop('minutes-rotator');
           }
         } else {
           while (this.selectedMinutes !== value) {
-            console.log(this.selectedMinutes, value);
+            // console.log(this.selectedMinutes, value);
             this.rollBottom('minutes-rotator');
           }
         }
@@ -472,12 +584,12 @@ export class AppComponent implements OnInit {
       case 's':
         if (value < this.selectedSeconds) {
           while (this.selectedSeconds !== value) {
-            console.log(this.selectedSeconds, value);
+            // console.log(this.selectedSeconds, value);
             this.rollTop('seconds-rotator');
           }
         } else {
           while (this.selectedSeconds !== value) {
-            console.log(this.selectedSeconds, value);
+            // console.log(this.selectedSeconds, value);
             this.rollBottom('seconds-rotator');
           }
         }
@@ -490,69 +602,106 @@ export class AppComponent implements OnInit {
     this.selectedMeridiem = meridiem;
   }
 
-  rollTop(id: string) {
+  rollTop(id: string, assignValue = true): number {
     const el = this.elem.nativeElement.querySelector('#' + id) as HTMLDivElement;
+
     el.insertBefore(el.lastChild, el.firstChild);
     let nodeValue = (el.childNodes[1] as HTMLDivElement).innerText;
     // console.log(nodeValue);
     if (!nodeValue) {
       nodeValue = '00';
     }
+    let returnValue = -1;
     switch (id) {
       case 'hours-rotator':
         this.currentHours = parseInt(nodeValue, 10);
-        this.selectedHours = this.currentHours;
+        if (assignValue) {
+          // this.selectedHours = this.currentHours;
+          this.selectedHours = parseInt(nodeValue, 10);
+        }
+        returnValue = this.currentHours;
+        break;
+      case 'hours12-rotator':
+        this.currentHours = parseInt(nodeValue, 10);
+        if (assignValue) {
+          // this.selectedHours = this.currentHours;
+          this.selectedHours = parseInt(nodeValue, 10);
+        }
+        returnValue = this.currentHours;
         break;
       case 'minutes-rotator':
         this.currentMinutes = parseInt(nodeValue, 10);
-        this.selectedMinutes = this.currentMinutes;
+        if (assignValue) {
+          // this.selectedMinutes = this.currentMinutes;
+          this.selectedMinutes = parseInt(nodeValue, 10);
+        }
+        returnValue = this.currentMinutes;
         break;
       case 'seconds-rotator':
         this.currentSeconds = parseInt(nodeValue, 10);
-        this.selectedSeconds = this.currentSeconds;
+        if (assignValue) {
+          // this.selectedSeconds = this.currentSeconds;
+          this.selectedSeconds = parseInt(nodeValue, 10);
+        }
+        returnValue = this.currentSeconds;
         break;
     }
+
     if ((el.childNodes[1] as HTMLDivElement).innerText === '00') {
       this.rollTop(id);
     }
-    // if (!this.hourFormat24 && parseInt(nodeValue, 10) > 11) {
-    //   while (nodeValue === '00') {
-    //     this.rollTop(id);
-    //   }
-    // }
+    return returnValue;
   }
 
-  rollBottom(id: string) {
+  rollBottom(id: string, assignValue = true): number {
     const el = this.elem.nativeElement.querySelector('#' + id) as HTMLDivElement;
+
     el.appendChild(el.firstChild);
     let nodeValue = (el.childNodes[1] as HTMLDivElement).innerText;
     // console.log(nodeValue);
     if (!nodeValue) {
       nodeValue = '00';
     }
+    let returnValue = -1;
     switch (id) {
       case 'hours-rotator':
         this.currentHours = parseInt(nodeValue, 10);
-        this.selectedHours = this.currentHours;
+        if (assignValue) {
+          // this.selectedHours = this.currentHours;
+          this.selectedHours = parseInt(nodeValue, 10);
+        }
+        returnValue = this.currentHours;
+        break;
+      case 'hours12-rotator':
+        this.currentHours = parseInt(nodeValue, 10);
+        if (assignValue) {
+          // this.selectedHours = this.currentHours;
+          this.selectedHours = parseInt(nodeValue, 10);
+        }
+        returnValue = this.currentHours;
         break;
       case 'minutes-rotator':
         this.currentMinutes = parseInt(nodeValue, 10);
-        this.selectedMinutes = this.currentMinutes;
+        if (assignValue) {
+          // this.selectedMinutes = this.currentMinutes;
+          this.selectedMinutes = parseInt(nodeValue, 10);
+        }
+        returnValue = this.currentMinutes;
         break;
       case 'seconds-rotator':
         this.currentSeconds = parseInt(nodeValue, 10);
-        this.selectedSeconds = this.currentSeconds;
+        if (assignValue) {
+          // this.selectedSeconds = this.currentSeconds;
+          this.selectedSeconds = parseInt(nodeValue, 10);
+        }
+        returnValue = this.currentSeconds;
         break;
     }
 
     if ((el.childNodes[1] as HTMLDivElement).innerText === '00') {
       this.rollBottom(id);
     }
-    // if (!this.hourFormat24 && parseInt(nodeValue, 10) > 11) {
-    //   while (nodeValue === '00') {
-    //     this.rollBottom(id);
-    //   }
-    // }
+    return returnValue;
   }
 
   timeScroll(evt: WheelEvent, containerId: string) {

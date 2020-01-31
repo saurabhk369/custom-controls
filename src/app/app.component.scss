@@ -348,6 +348,11 @@
     }
 }
 
+.hide-control {
+    display: none !important;
+    z-index: -1;
+}
+
 select {
     background: white;
     padding: 5px;
