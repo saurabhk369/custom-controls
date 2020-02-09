@@ -1,13 +1,19 @@
 {
     "name": "custom-datetimepicker",
-    "version": "0.0.1",
+    "version": "0.2.2",
+    "author": "Saurabh Sanjay Kulkarni",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/saurabhk369/custom-controls.git"
+    },
     "peerDependencies": {
         "@angular/common": "^8.0.3",
         "@angular/core": "^8.0.3"
     },
-    "devDependencies": {
-        "@types/moment-timezone": "^0.5.12",
+    "dependencies": {
         "moment": "^2.24.0",
-        "moment-timezone": "^0.5.27"
-    }
+        "moment-timezone": "^0.5.27",
+        "@types/moment-timezone": "^0.5.12"
+    },
+    "devDependencies": {}
 }

@@ -1,3 +1,16 @@
+@import url('https://fonts.googleapis.com/css?family=Montserrat:400,500,&display=swap');
+:root {
+    --dark-highlight: #203a5b;
+    --highlight: #284b75;
+    --light-highlight: #6c8ba7;
+    --light-grey: #adaeaa;
+    --dark-grey: #232323;
+}
+
+* {
+    font-family: 'Montserrat', sans-serif;
+}
+
 :host *::selection {
     background-color: var(--light-highlight);
     color: white;
